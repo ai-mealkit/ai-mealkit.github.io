@@ -13,9 +13,9 @@
   body { display: flex; flex-direction: column; align-items: center; justify-content: space-between;
     padding: max(28px, env(safe-area-inset-top)) 24px max(32px, env(safe-area-inset-bottom)); user-select: none; overflow: hidden; }
   .top { width: 100%; display: flex; justify-content: space-between; font-size: 15px; color: var(--dim); font-variant-numeric: tabular-nums; }
-  .title { margin-top: 4vh; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .title { margin-top: 2vh; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
   .mode { margin-top: 6px; font-size: 14px; color: var(--dim); }
-  .battery { position: relative; width: min(58vw, 230px); aspect-ratio: 1 / 1.9; margin: 3vh 0 2vh;
+  .battery { position: relative; width: min(58vw, 230px, 22vh); aspect-ratio: 1 / 1.9; margin: 3.5vh 0 1.5vh;
     border: 7px solid var(--fg); border-radius: 28px; padding: 9px; }
   .battery::before { content: ""; position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
     width: 34%; height: 15px; background: var(--fg); border-radius: 8px 8px 0 0; }
@@ -30,7 +30,7 @@
   .pct small { font-size: 30px; font-weight: 800; }
   .msg { margin-top: 12px; font-size: 19px; font-weight: 700; text-align: center; min-height: 2.6em; line-height: 1.35; padding: 0 8px; }
   .left { margin-top: 4px; font-size: 14px; color: var(--dim); font-variant-numeric: tabular-nums; }
-  .btns { width: 100%; display: flex; gap: 10px; margin-top: 3vh; }
+  .btns { width: 100%; display: flex; gap: 10px; margin-top: 2vh; }
   button { flex: 1; height: 54px; border: 0; border-radius: 16px; background: #1d2128; color: var(--fg);
     font: inherit; font-size: 17px; font-weight: 700; }
   button:active { transform: scale(.97); background: #262b33; }
