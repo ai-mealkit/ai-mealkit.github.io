@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101114">
+<title>회의 탈출 버튼</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #101114; color: #f4f5f7; overflow: hidden; user-select: none;
+    font-family: system-ui, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  section { position: fixed; inset: 0; display: none; flex-direction: column; align-items: center;
+    padding: max(32px, env(safe-area-inset-top)) 24px max(36px, env(safe-area-inset-bottom)); }
+  section.on { display: flex; }
+
+  /* 1. 설정 화면 */
+  #setup { justify-content: space-between; }
+  .h1 { margin-top: 5vh; font-size: 28px; font-weight: 900; letter-spacing: -1px; }
+  .sub { margin-top: 8px; font-size: 15px; color: #8d94a0; text-align: center; line-height: 1.5; }
+  .group { width: 100%; }
+  .label { font-size: 14px; color: #8d94a0; margin: 18px 0 8px 4px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 11px 16px; border-radius: 999px; background: #1c1e23; font-size: 16px; font-weight: 700; }
+  .chip.sel { background: #f4f5f7; color: #101114; }
+  .big { width: min(64vw, 250px); aspect-ratio: 1; border-radius: 50%; border: 0; margin: 3vh 0;
+    background: radial-gradient(circle at 35% 30%, #ff7a7a, #e5262b 60%, #a3121a);
+    box-shadow: 0 14px 0 #6d0b11, 0 22px 40px rgba(229,38,43,.35); color: #fff;
+    font: inherit; font-size: 30px; font-weight: 900; letter-spacing: -1px; line-height: 1.15; }
+  .big:active { transform: translateY(10px); box-shadow: 0 4px 0 #6d0b11, 0 10px 24px rgba(229,38,43,.3); }
+
+  /* 2. 대기(화면 꺼진 척) */
+  #wait { background: #000; justify-content: center; }
+  #wait .dim { color: #1a1a1a; font-size: 13px; }
+
+  /* 3. 전화 오는 화면 */
+  #ring { background: linear-gradient(180deg, #2b3a55 0%, #18202f 55%, #0e121a 100%); justify-content: space-between; }
+  .who { margin-top: 9vh; text-align: center; }
+  .avatar { width: 108px; height: 108px; border-radius: 50%; margin: 0 auto 22px; background: #4a5a78;
+    display: flex; align-items: center; justify-content: center; font-size: 46px; font-weight: 800; color: #dfe6f3; }
+  #ring.on .avatar { animation: ripple 1.6s ease-out infinite; }
+  @keyframes ripple { 0% { box-shadow: 0 0 0 0 rgba(223,230,243,.35); } 100% { box-shadow: 0 0 0 34px rgba(223,230,243,0); } }
+  .name { font-size: 34px; font-weight: 800; letter-spacing: -1px; }
+  .kind { margin-top: 10px; font-size: 17px; color: #b7c0d0; }
+  .actions { width: 100%; display: flex; justify-content: space-around; margin-bottom: 4vh; }
+  .act { display: flex; flex-direction: column; align-items: center; gap: 10px; font-size: 15px; color: #cfd6e2; }
+  .round { width: 76px; height: 76px; border-radius: 50%; border: 0; font-size: 32px; color: #fff; }
+  .deny { background: #ec3b3b; } .ok { background: #2fbf5b; }
+  #ring.on .ok { animation: nudge 1.2s ease-in-out infinite; }
+  @keyframes nudge { 0%,60%,100% { transform: translateY(0); } 30% { transform: translateY(-10px); } }
+
+  /* 4. 통화 중 */
+  #call { background: #14171d; justify-content: space-between; }
+  .timer { margin-top: 10px; font-size: 18px; color: #2fbf5b; font-variant-numeric: tabular-nums; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px 28px; margin-top: 4vh; }
+  .grid div { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 13px; color: #9aa3b2; }
+  .grid span { width: 62px; height: 62px; border-radius: 50%; background: #232730; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+  .note { font-size: 14px; color: #6f7886; text-align: center; min-height: 1.4em; }
+</style>
+</head>
+<body>
+<section id="setup" class="on">
+  <div style="text-align:center">
+    <div class="h1">회의 탈출 버튼</div>
+    <div class="sub">누르면 잠시 뒤 전화가 옵니다.<br>"죄송합니다, 이 전화는 받아야 해서요"</div>
+  </div>
+  <div class="group">
+    <div class="label">누가 전화할까요</div>
+    <div class="chips" id="callers"></div>
+    <div class="label">언제 올까요</div>
+    <div class="chips" id="delays"></div>
+  </div>
+  <button class="big" id="go">회의<br>탈출</button>
+</section>
+
+<section id="wait"><div class="dim">·</div></section>
+
+<section id="ring">
+  <div class="who">
+    <div class="avatar" id="av">팀</div>
+    <div class="name" id="nm">팀장님</div>
+    <div class="kind">휴대전화 · 수신 전화</div>
+  </div>
+  <div class="actions">
+    <div class="act"><button class="round deny" id="deny">✕</button>거절</div>
+    <div class="act"><button class="round ok" id="ok">✆</button>받기</div>
+  </div>
+</section>
+
+<section id="call">
+  <div class="who" style="margin-top:7vh">
+    <div class="avatar" id="av2">팀</div>
+    <div class="name" id="nm2">팀장님</div>
+    <div class="timer" id="tm">00:00</div>
+  </div>
+  <div class="grid">
+    <div><span>🎙️</span>음소거</div><div><span>⌨️</span>키패드</div><div><span>🔊</span>스피커</div>
+    <div><span>➕</span>통화 추가</div><div><span>⏸️</span>대기</div><div><span>📝</span>메모</div>
+  </div>
+  <div class="note" id="note"></div>
+  <div class="act" style="margin-bottom:4vh"><button class="round deny" id="end">✕</button>종료</div>
+</section>
+
+<script>
+// 진짜 전화가 아니라 화면·소리만 흉내 낸다(통신 없음, 저장 없음).
+const q = new URLSearchParams(location.search);
+const CALLERS = ["팀장님", "엄마", "택배 기사님", "부장님", "병원"];
+const DELAYS = [["바로", 2], ["10초 뒤", 10], ["30초 뒤", 30], ["1분 뒤", 60]];
+let caller = q.get("who") || CALLERS[0], delay = q.has("d") ? +q.get("d") : 10;
+let ctx, ringTimer, vibTimer, callTimer, waitTimer;
+
+function chips(id, items, isSel, onPick) {
+  const box = document.getElementById(id); box.innerHTML = "";
+  items.forEach(it => { const c = document.createElement("div"); c.className = "chip" + (isSel(it) ? " sel" : "");
+    c.textContent = Array.isArray(it) ? it[0] : it; c.onclick = () => { onPick(it); draw(); }; box.appendChild(c); });
+}
+function draw() {
+  chips("callers", CALLERS, c => c === caller, c => caller = c);
+  chips("delays", DELAYS, d => d[1] === delay, d => delay = d[1]);
+}
+function show(id) { document.querySelectorAll("section").forEach(s => s.classList.toggle("on", s.id === id)); }
+function tone(f1, f2, t0, len) {           // 두 음을 겹친 벨소리 한 마디
+  [f1, f2].forEach(f => { const o = ctx.createOscillator(), g = ctx.createGain(); o.type = "sine"; o.frequency.value = f;
+    g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(.16, t0 + .02); g.gain.setValueAtTime(.16, t0 + len - .05);
+    g.gain.linearRampToValueAtTime(0, t0 + len); o.connect(g).connect(ctx.destination); o.start(t0); o.stop(t0 + len); });
+}
+function ringOnce() { const t = ctx.currentTime; for (let i = 0; i < 3; i++) tone(1320, 1760, t + i * .28, .22); }
+function startRing() {
+  const ini = caller.replace("님", "").trim()[0];
+  ["av", "av2"].forEach(i => document.getElementById(i).textContent = ini);
+  ["nm", "nm2"].forEach(i => document.getElementById(i).textContent = caller);
+  show("ring"); ringOnce(); ringTimer = setInterval(ringOnce, 2000);
+  if (navigator.vibrate) { navigator.vibrate([700, 400, 700]); vibTimer = setInterval(() => navigator.vibrate([700, 400, 700]), 2000); }
+}
+function stopRing() { clearInterval(ringTimer); clearInterval(vibTimer); if (navigator.vibrate) navigator.vibrate(0); }
+document.getElementById("go").onclick = () => {
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)(); ctx.resume();
+  show("wait"); waitTimer = setTimeout(startRing, delay * 1000);
+};
+document.getElementById("wait").onclick = () => { clearTimeout(waitTimer); show("setup"); };   // 화면 누르면 취소
+document.getElementById("deny").onclick = () => { stopRing(); show("setup"); };
+document.getElementById("ok").onclick = () => {
+  stopRing(); show("call"); let s = 0; const tm = document.getElementById("tm"), note = document.getElementById("note");
+  tm.textContent = "00:00"; note.textContent = "";
+  callTimer = setInterval(() => { s++; tm.textContent = `${String(s / 60 | 0).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+    if (s === 4) note.textContent = "(조용히 회의실 문을 닫고 나가세요)"; }, 1000);
+};
+document.getElementById("end").onclick = () => { clearInterval(callTimer); show("setup"); };
+draw();
+</script>
+</body>
+</html>

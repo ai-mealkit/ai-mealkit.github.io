@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b2a2e">
+<title>손끝 연못</title>
+<style>
+  * { margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: #0b2a2e; overflow: hidden; touch-action: none; user-select: none; }
+  canvas { display: block; width: 100vw; height: 100vh; }
+  .hint { position: fixed; left: 0; right: 0; bottom: max(28px, env(safe-area-inset-bottom)); text-align: center;
+    color: rgba(230, 245, 240, .75); font: 600 15px system-ui, "Noto Sans KR", "Malgun Gothic", sans-serif;
+    transition: opacity 1.2s; pointer-events: none; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="hint" id="hint">손가락으로 물을 저어 보세요 · 톡 치면 먹이</div>
+<script>
+const cv = document.getElementById("c"), g = cv.getContext("2d");
+let W, H, DPR;
+function resize() { DPR = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight;
+  cv.width = W * DPR; cv.height = H * DPR; g.setTransform(DPR, 0, 0, DPR, 0, 0); }
+addEventListener("resize", resize); resize();
+const R = (a, b) => a + Math.random() * (b - a);
+
+// 연잎
+const pads = Array.from({ length: 5 }, () => ({ x: R(0, 1), y: R(0, 1), r: R(26, 46), a: R(0, 6.28), f: Math.random() < .4 }));
+// 잉어 무늬: [바탕, 무늬색, 무늬 자리(마디 번호)]
+const SKINS = [["#f7f3ec", "#f0602a", [1, 2, 5, 6, 7]], ["#f08a2a", "#fff6e8", [3, 4, 8]], ["#f7f3ec", "#222", [2, 6]],
+               ["#ffd23f", "#f07a20", [1, 4, 5]], ["#f7f3ec", "#e8452c", [0, 1, 2, 3]], ["#e9612b", "#1d1d1d", [5, 7]]];
+const N = 12;
+const fish = SKINS.map((s, i) => {
+  const x = R(.2, .8) * innerWidth, y = R(.2, .8) * innerHeight, a = R(0, 6.28), len = R(.85, 1.15);
+  return { x, y, a, v: R(.6, 1), len, off: i * 1.05, orb: R(28, 60), skin: s, phase: R(0, 6.28), wander: { x: R(0, innerWidth), y: R(0, innerHeight) },
+    spine: Array.from({ length: N }, (_, k) => ({ x: x - Math.cos(a) * k * 7 * len, y: y - Math.sin(a) * k * 7 * len })) };
+});
+const ripples = [], food = [];
+let touch = null, lastRipple = 0, t0 = performance.now();
+
+// 소리: 물방울(짧은 사인 하강)
+let actx;
+function plop(vol = .12) {
+  try { actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const o = actx.createOscillator(), gn = actx.createGain(), t = actx.currentTime;
+    o.frequency.setValueAtTime(R(700, 900), t); o.frequency.exponentialRampToValueAtTime(180, t + .12);
+    gn.gain.setValueAtTime(vol, t); gn.gain.exponentialRampToValueAtTime(.001, t + .16);
+    o.connect(gn).connect(actx.destination); o.start(t); o.stop(t + .17); } catch (e) {}
+}
+function ripple(x, y, s = 1) { ripples.push({ x, y, r: 4, max: 70 * s, life: 1 }); }
+
+let downAt = 0, moved = 0;
+cv.addEventListener("pointerdown", e => { touch = { x: e.clientX, y: e.clientY }; downAt = performance.now(); moved = 0;
+  ripple(touch.x, touch.y, 1.2); document.getElementById("hint").style.opacity = 0; });
+cv.addEventListener("pointermove", e => { if (!touch) return;
+  moved += Math.hypot(e.clientX - touch.x, e.clientY - touch.y); touch = { x: e.clientX, y: e.clientY };
+  const now = performance.now(); if (now - lastRipple > 90) { ripple(touch.x, touch.y, .8); lastRipple = now; } });
+addEventListener("pointerup", e => {
+  if (touch && performance.now() - downAt < 250 && moved < 12) {          // 톡 = 먹이 3알
+    for (let i = 0; i < 3; i++) food.push({ x: e.clientX + R(-18, 18), y: e.clientY + R(-18, 18), life: 1 });
+    plop(.14);
+  }
+  touch = null;
+});
+
+function steer(f, tx, ty, turn) {
+  let d = Math.atan2(ty - f.y, tx - f.x) - f.a;
+  d = Math.atan2(Math.sin(d), Math.cos(d)); f.a += Math.max(-turn, Math.min(turn, d));
+}
+function update(dt) {
+  const now = performance.now();
+  for (const f of fish) {
+    let tx = f.wander.x, ty = f.wander.y, sp = .9, turn = .035;
+    let near = null, nd = 1e9;
+    for (const p of food) { const d = Math.hypot(p.x - f.x, p.y - f.y); if (d < nd) { nd = d; near = p; } }
+    if (touch) { const d = Math.hypot(touch.x - f.x, touch.y - f.y);
+      if (d < 260) { const oa = f.off + now / 900;   // 손끝 둘레를 각자 다른 자리로 돈다
+        tx = touch.x + Math.cos(oa) * f.orb; ty = touch.y + Math.sin(oa) * f.orb; sp = d < 40 ? 1.2 : 2.4; turn = .08; } }
+    if (near && nd < 420 && !(touch && Math.hypot(touch.x - f.x, touch.y - f.y) < 260)) { tx = near.x; ty = near.y; sp = 2; turn = .07;
+      if (nd < 10) { near.life = 0; ripple(near.x, near.y, .5); plop(.06); } }
+    if (Math.hypot(f.wander.x - f.x, f.wander.y - f.y) < 40) f.wander = { x: R(40, W - 40), y: R(60, H - 60) };
+    // 벽에서 부드럽게 돌기
+    const m = 30; if (f.x < m || f.x > W - m || f.y < m || f.y > H - m) { tx = W / 2; ty = H / 2; turn = .06; }
+    steer(f, tx, ty, turn);
+    f.v += (sp - f.v) * .05; f.phase += .12 + f.v * .08;
+    f.x += Math.cos(f.a) * f.v * dt; f.y += Math.sin(f.a) * f.v * dt;
+    for (const o of fish) { if (o === f) continue;   // 서로 겹치지 않게 밀어냄
+      const dx = f.x - o.x, dy = f.y - o.y, d = Math.hypot(dx, dy), min = 26 * (f.len + o.len) / 2;
+      if (d > 0 && d < min) { const k = (min - d) / d * .25; f.x += dx * k; f.y += dy * k; } }
+    f.spine[0].x = f.x; f.spine[0].y = f.y;
+    const seg = 7 * f.len;
+    for (let k = 1; k < N; k++) { const p = f.spine[k - 1], c = f.spine[k], a = Math.atan2(c.y - p.y, c.x - p.x);
+      c.x = p.x + Math.cos(a) * seg; c.y = p.y + Math.sin(a) * seg; }
+  }
+  for (const r of ripples) { r.r += 1.6 * dt; r.life = 1 - r.r / r.max; }
+  for (let i = ripples.length - 1; i >= 0; i--) if (ripples[i].life <= 0) ripples.splice(i, 1);
+  for (const p of food) p.life -= .0012 * dt;
+  for (let i = food.length - 1; i >= 0; i--) if (food[i].life <= 0) food.splice(i, 1);
+}
+function drawFish(f) {
+  const [base, mark, spots] = f.skin, wid = k => (k < 3 ? 6 + k * 2.2 : 12.6 - (k - 3) * 1.25) * f.len;
+  const sw = Math.sin(f.phase);
+  // 그림자
+  g.save(); g.globalAlpha = .18; g.fillStyle = "#001214";
+  for (let k = 0; k < N - 1; k++) { const p = f.spine[k]; g.beginPath(); g.arc(p.x + 9, p.y + 12, wid(k), 0, 6.28); g.fill(); }
+  g.restore();
+  // 꼬리지느러미
+  const a = f.spine[N - 2], b = f.spine[N - 1], ta = Math.atan2(b.y - a.y, b.x - a.x) + sw * .45;
+  g.fillStyle = base; g.globalAlpha = .75; g.beginPath(); g.moveTo(b.x, b.y);
+  g.quadraticCurveTo(b.x + Math.cos(ta + .5) * 20 * f.len, b.y + Math.sin(ta + .5) * 20 * f.len, b.x + Math.cos(ta + .9) * 24 * f.len, b.y + Math.sin(ta + .9) * 24 * f.len);
+  g.lineTo(b.x + Math.cos(ta) * 12 * f.len, b.y + Math.sin(ta) * 12 * f.len);
+  g.lineTo(b.x + Math.cos(ta - .9) * 24 * f.len, b.y + Math.sin(ta - .9) * 24 * f.len);
+  g.quadraticCurveTo(b.x + Math.cos(ta - .5) * 20 * f.len, b.y + Math.sin(ta - .5) * 20 * f.len, b.x, b.y); g.fill(); g.globalAlpha = 1;
+  // 가슴지느러미
+  const p3 = f.spine[3], p2 = f.spine[2], ba = Math.atan2(p2.y - p3.y, p2.x - p3.x);
+  g.fillStyle = base; g.globalAlpha = .7;
+  for (const s of [1, -1]) { g.save(); g.translate(p3.x, p3.y); g.rotate(ba + s * (2.2 + sw * .25));
+    g.beginPath(); g.ellipse(9 * f.len, 0, 11 * f.len, 4.5 * f.len, 0, 0, 6.28); g.fill(); g.restore(); }
+  g.globalAlpha = 1;
+  // 몸통(뒤에서 앞으로)
+  for (let k = N - 1; k >= 0; k--) { const p = f.spine[k]; g.fillStyle = spots.includes(k) ? mark : base;
+    g.beginPath(); g.arc(p.x, p.y, wid(k), 0, 6.28); g.fill(); }
+  // 눈
+  const h = f.spine[0], h1 = f.spine[1], ha = Math.atan2(h.y - h1.y, h.x - h1.x);
+  g.fillStyle = "#1a1a1a";
+  for (const s of [1, -1]) { g.beginPath(); g.arc(h.x + Math.cos(ha + s * 1.1) * 4.5 * f.len, h.y + Math.sin(ha + s * 1.1) * 4.5 * f.len, 1.4, 0, 6.28); g.fill(); }
+}
+function drawPad(p, t) {
+  const x = p.x * W, y = p.y * H, a = p.a + Math.sin(t / 3000 + p.r) * .05;
+  g.save(); g.translate(x, y); g.rotate(a);
+  g.fillStyle = "rgba(0,20,20,.25)"; g.beginPath(); g.arc(8, 10, p.r, .25, 6.03); g.lineTo(8, 10); g.fill();
+  g.fillStyle = "#3f8f4a"; g.beginPath(); g.arc(0, 0, p.r, .25, 6.03); g.lineTo(0, 0); g.fill();
+  g.strokeStyle = "rgba(200,240,190,.25)"; g.lineWidth = 1.2;
+  for (let i = 0; i < 6; i++) { const aa = .5 + i * .95; g.beginPath(); g.moveTo(0, 0); g.lineTo(Math.cos(aa) * p.r * .85, Math.sin(aa) * p.r * .85); g.stroke(); }
+  if (p.f) { g.fillStyle = "#f7c6d4"; for (let i = 0; i < 6; i++) { g.beginPath(); g.ellipse(Math.cos(i) * 6 - 4, Math.sin(i) * 6 - 4, 9, 4, i, 0, 6.28); g.fill(); }
+    g.fillStyle = "#ffe27a"; g.beginPath(); g.arc(-4, -4, 3.5, 0, 6.28); g.fill(); }
+  g.restore();
+}
+function frame(now) {
+  const dt = Math.min(3, (now - t0) / 16.7); t0 = now; update(dt);
+  const bg = g.createRadialGradient(W * .4, H * .3, 40, W * .5, H * .5, Math.max(W, H) * .8);
+  bg.addColorStop(0, "#1f6a6a"); bg.addColorStop(.6, "#124548"); bg.addColorStop(1, "#08262a");
+  g.fillStyle = bg; g.fillRect(0, 0, W, H);
+  // 물빛 일렁임
+  g.globalCompositeOperation = "lighter";
+  for (let i = 0; i < 7; i++) { const x = (Math.sin(now / 4000 + i * 1.7) * .5 + .5) * W, y = (Math.cos(now / 5200 + i * 2.3) * .5 + .5) * H;
+    const l = g.createRadialGradient(x, y, 0, x, y, 120); l.addColorStop(0, "rgba(120,220,210,.06)"); l.addColorStop(1, "rgba(0,0,0,0)");
+    g.fillStyle = l; g.fillRect(x - 120, y - 120, 240, 240); }
+  g.globalCompositeOperation = "source-over";
+  for (const p of food) { g.fillStyle = `rgba(150,95,50,${p.life})`; g.beginPath(); g.arc(p.x, p.y, 3.2, 0, 6.28); g.fill(); }
+  fish.forEach(drawFish);
+  for (const r of ripples) { g.strokeStyle = `rgba(220,250,245,${r.life * .55})`; g.lineWidth = 2 * r.life + .5;
+    g.beginPath(); g.arc(r.x, r.y, r.r, 0, 6.28); g.stroke(); }
+  pads.forEach(p => drawPad(p, now));
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>

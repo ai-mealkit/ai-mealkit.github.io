@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b0d10">
+<title>주말 배터리</title>
+<style>
+  :root { --c: #3ddc84; --bg: #0b0d10; --fg: #f2f4f7; --dim: #8a93a0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); color: var(--fg);
+    font-family: system-ui, "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
+  body { display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    padding: max(28px, env(safe-area-inset-top)) 24px max(32px, env(safe-area-inset-bottom)); user-select: none; overflow: hidden; }
+  .top { width: 100%; display: flex; justify-content: space-between; font-size: 15px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .title { margin-top: 4vh; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; }
+  .mode { margin-top: 6px; font-size: 14px; color: var(--dim); }
+  .battery { position: relative; width: min(58vw, 230px); aspect-ratio: 1 / 1.9; margin: 3vh 0 2vh;
+    border: 7px solid var(--fg); border-radius: 28px; padding: 9px; }
+  .battery::before { content: ""; position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
+    width: 34%; height: 15px; background: var(--fg); border-radius: 8px 8px 0 0; }
+  .well { position: relative; width: 100%; height: 100%; border-radius: 16px; overflow: hidden; background: #171a1f; }
+  .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; background: var(--c);
+    border-radius: 12px; transition: height .6s ease, background .6s ease; }
+  .bolt { position: absolute; inset: 0; display: none; align-items: center; justify-content: center; font-size: 72px;
+    color: #0b0d10; text-shadow: 0 0 2px rgba(255,255,255,.4); }
+  .charging .bolt { display: flex; animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .35; } }
+  .pct { font-size: 64px; font-weight: 900; letter-spacing: -2px; font-variant-numeric: tabular-nums; line-height: 1; }
+  .pct small { font-size: 30px; font-weight: 800; }
+  .msg { margin-top: 12px; font-size: 19px; font-weight: 700; text-align: center; min-height: 2.6em; line-height: 1.35; padding: 0 8px; }
+  .left { margin-top: 4px; font-size: 14px; color: var(--dim); font-variant-numeric: tabular-nums; }
+  .btns { width: 100%; display: flex; gap: 10px; margin-top: 3vh; }
+  button { flex: 1; height: 54px; border: 0; border-radius: 16px; background: #1d2128; color: var(--fg);
+    font: inherit; font-size: 17px; font-weight: 700; }
+  button:active { transform: scale(.97); background: #262b33; }
+  .toast { position: fixed; left: 50%; top: 42%; transform: translate(-50%, -50%) scale(.9); opacity: 0;
+    background: rgba(20,22,27,.94); border: 1px solid #2a2f37; padding: 16px 22px; border-radius: 18px;
+    font-size: 18px; font-weight: 800; text-align: center; transition: .25s; pointer-events: none; white-space: nowrap; }
+  .toast.on { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  .low .battery { animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { border-color: #ff4d4f; } }
+</style>
+</head>
+<body>
+  <div class="top"><span id="clock">--</span><span>주말 배터리</span></div>
+  <div class="title" id="title">이번 주말 남은 양</div>
+  <div class="mode" id="mode">금 18:00 완충 · 월 09:00 방전</div>
+  <div class="battery"><div class="well"><div class="fill" id="fill"></div><div class="bolt">⚡</div></div></div>
+  <div class="pct" id="pct">--<small>%</small></div>
+  <div class="msg" id="msg"></div>
+  <div class="left" id="left"></div>
+  <div class="btns">
+    <button id="nap">😴 낮잠 자기</button>
+    <button id="ff">⏩ 일요일 밤</button>
+  </div>
+  <div class="toast" id="toast"></div>
+<script>
+// 주말 = 금 18:00 → 월 09:00(63시간). 평일엔 충전, 주말엔 방전.
+const q = new URLSearchParams(location.search);
+let offset = q.get("t") ? new Date(q.get("t")) - Date.now() : 0;   // ?t=2026-11-07T14:00 로 시각 지정(녹화용)
+const H = 3600e3;
+
+function lastAt(now, dow, h) {            // now 이전의 가장 최근 (요일 dow, h시)
+  const d = new Date(now); d.setHours(h, 0, 0, 0);
+  d.setDate(d.getDate() - ((d.getDay() - dow + 7) % 7));
+  if (d > now) d.setDate(d.getDate() - 7);
+  return d;
+}
+function state(now) {
+  const fri = lastAt(now, 5, 18), mon = new Date(+fri + 63 * H);
+  if (now < mon) return { weekend: true, monday: now.getDay() === 1, p: 1 - (now - fri) / (63 * H), left: mon - now };
+  const nextFri = new Date(+fri + 7 * 24 * H);
+  return { weekend: false, p: (now - mon) / (nextFri - mon), left: nextFri - now };
+}
+function color(p) { return p > .5 ? "#3ddc84" : p > .2 ? "#ffc53d" : "#ff4d4f"; }
+function line(s) {
+  const p = s.p * 100;
+  if (!s.weekend) return p < 20 ? "월요일... 충전 시작합니다" : p < 60 ? "주말 충전 중. 아직 멀었습니다" : p < 95 ? "곧 완충! 조금만 버티세요" : "완충 직전. 퇴근 준비";
+  if (p > 95) return "완충! 주말 시작합니다";
+  if (p > 70) return "토요일 아침. 세상 든든함";
+  if (p > 50) return "벌써 반 가까이 썼습니다";
+  if (p > 30) return "일요일 진입. 마음이 급해짐";
+  if (p > 15) return "저전력 모드: 일요일 저녁";
+  if (p > 3)  return "⚠️ 월요병 경보 발령";
+  return s.monday ? "방전. 출근하세요 🫠" : "곧 방전됩니다. 내일 출근";
+}
+const days = "일월화수목금토";
+function fmtLeft(ms) { const h = Math.floor(ms / H), m = Math.floor(ms % H / 60e3); return `${h}시간 ${m}분`; }
+function render() {
+  const now = new Date(Date.now() + offset), s = state(now), p = Math.max(0, Math.min(1, s.p));
+  document.getElementById("clock").textContent =
+    `${days[now.getDay()]} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
+  const fill = document.getElementById("fill");
+  fill.style.height = (p * 100).toFixed(1) + "%"; fill.style.background = color(s.weekend ? p : 1);
+  document.body.classList.toggle("charging", !s.weekend);
+  document.body.classList.toggle("low", s.weekend && p < .15);
+  document.getElementById("pct").innerHTML = Math.round(p * 100) + "<small>%</small>";
+  document.getElementById("title").textContent = s.weekend ? "이번 주말 남은 양" : "다음 주말 충전 중";
+  document.getElementById("mode").textContent = s.weekend ? "금 18:00 완충 · 월 09:00 방전" : "월 09:00부터 충전 · 금 18:00 완충";
+  document.getElementById("msg").textContent = line(s);
+  document.getElementById("left").textContent = s.weekend ? `월요일 09:00까지 ${fmtLeft(s.left)}` : `금요일 18:00까지 ${fmtLeft(s.left)}`;
+}
+function toast(t) { const e = document.getElementById("toast"); e.textContent = t; e.classList.add("on"); setTimeout(() => e.classList.remove("on"), 1600); }
+function beep(f, d) {
+  try { const a = new (window.AudioContext || window.webkitAudioContext)(), o = a.createOscillator(), g = a.createGain();
+    o.frequency.value = f; g.gain.setValueAtTime(.18, a.currentTime); g.gain.exponentialRampToValueAtTime(.001, a.currentTime + d);
+    o.connect(g).connect(a.destination); o.start(); o.stop(a.currentTime + d); } catch (e) {}
+}
+function jump(ms, label) {                 // 시간을 ms만큼 빨리 감기(눈에 보이게 조금씩)
+  const steps = 24, per = ms / steps; let i = 0;
+  const t = setInterval(() => { offset += per; render(); if (++i >= steps) { clearInterval(t); toast(label); } }, 40);
+}
+document.getElementById("nap").onclick = () => { beep(330, .35); jump(3 * H, "잠깐 눈 붙였을 뿐인데 3시간 😇"); };
+document.getElementById("ff").onclick = () => {
+  const now = new Date(Date.now() + offset), sunNight = lastAt(new Date(+now + 7 * 24 * H), 0, 22);
+  let target = sunNight; while (target - now > 7 * 24 * H) target = new Date(+target - 7 * 24 * H);
+  if (target <= now) target = new Date(+target + 7 * 24 * H);
+  beep(220, .6); jump(target - now, "눈 떠 보니 일요일 밤 22시");
+};
+render(); setInterval(render, 1000);
+</script>
+</body>
+</html>
