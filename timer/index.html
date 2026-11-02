@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>회의 돈 타이머</title>
+<style>
+/* 한 화면 도구: 큰 금액 하나 + 입력 두 칸. 작게 모드는 화면 구석에 띄워 두는 용도 */
+:root{--bg:#f3f1ec;--card:#ffffff;--ink:#1d1b18;--mute:#6f6a62;--line:#ddd8cf;--burn:#d2400f;--burn2:#f07a2b;--ok:#2d6a4f;
+--font:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#161412;--card:#201d1a;--ink:#f1ece4;--mute:#a8a096;--line:#3a352f;--burn:#ff6a33;--burn2:#ffa25c;--ok:#74c69d;color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--font);display:grid;place-items:center;padding:16px}
+.app{width:min(440px,100%);background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px;display:grid;gap:18px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.head h1{font-size:17px;margin:0}
+.state{font-size:13px;color:var(--mute)}
+.money{font-size:clamp(40px,12vw,56px);font-weight:800;letter-spacing:-1px;font-variant-numeric:tabular-nums;color:var(--burn);line-height:1.1}
+.money.idle{color:var(--ink)}
+.sub{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--mute);font-size:14px;font-variant-numeric:tabular-nums}
+.sub b{color:var(--ink)}
+.bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--burn2),var(--burn));transition:width .3s}
+.eq{font-size:15px;font-weight:600}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:grid;gap:4px;font-size:13px;color:var(--mute)}
+input{font:600 17px var(--font);padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);width:100%;font-variant-numeric:tabular-nums}
+.btns{display:grid;grid-template-columns:2fr 1fr 1fr;gap:8px}
+button{font:700 15px var(--font);padding:12px 8px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink);cursor:pointer}
+button.go{background:var(--burn);border-color:var(--burn);color:#fff}
+button:focus-visible,input:focus-visible{outline:2px solid var(--burn);outline-offset:2px}
+.note{font-size:12px;color:var(--mute);margin:0}
+/* 작게 모드: 금액·시간만 */
+body.mini{background:transparent;place-items:start end;padding:10px}
+body.mini .app{width:auto;padding:10px 14px;gap:2px;border-radius:10px;box-shadow:0 4px 18px rgba(0,0,0,.18)}
+body.mini .money{font-size:28px}
+body.mini .hide-mini{display:none}
+body.mini .sub{font-size:12px}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<main class="app" aria-live="polite">
+  <div class="head hide-mini">
+    <h1>회의 돈 타이머</h1>
+    <span class="state" id="state">대기 중</span>
+  </div>
+  <div class="money idle" id="money">₩0</div>
+  <div class="sub">
+    <span>경과 <b id="elapsed">00:00:00</b></span>
+    <span class="hide-mini">1분마다 <b id="perMin">₩0</b></span>
+  </div>
+  <div class="bar hide-mini" aria-hidden="true"><i id="bar"></i></div>
+  <div class="eq hide-mini" id="eq">치킨 0마리 · 커피 0잔</div>
+  <div class="row hide-mini">
+    <label for="people">참석자 수(명)<input id="people" type="number" min="1" max="500" value="8" inputmode="numeric"></label>
+    <label for="salary">평균 연봉(만 원)<input id="salary" type="number" min="1" max="100000" value="4000" inputmode="numeric"></label>
+  </div>
+  <div class="btns hide-mini">
+    <button class="go" id="toggle" type="button">회의 시작</button>
+    <button id="reset" type="button">처음부터</button>
+    <button id="mini" type="button">작게</button>
+  </div>
+  <p class="note hide-mini">계산: 연봉 ÷ 연 2,508시간(주 40시간 + 주휴, 월 209시간) × 참석자 수. 세금·4대 보험 회사 부담분은 넣지 않아 실제 비용은 이보다 큽니다. 치킨 23,000원·커피 4,500원 기준.</p>
+</main>
+<script>
+(() => {
+  const HOURS = 2508, CHICKEN = 23000, COFFEE = 4500;
+  const q = new URLSearchParams(location.search);
+  const speed = Math.max(1, Number(q.get("speed")) || 1); // 촬영용 배속(?speed=60). 화면에 표시함
+  const $ = id => document.getElementById(id);
+  let running = false, base = 0, startedAt = 0;
+
+  try {
+    const s = JSON.parse(localStorage.getItem("meetingTimer") || "{}");
+    if (s.people) $("people").value = s.people;
+    if (s.salary) $("salary").value = s.salary;
+  } catch (e) {}
+  if (q.get("mini") === "1") document.body.classList.add("mini");
+
+  const perSecond = () => {
+    const p = Math.max(1, Number($("people").value) || 1);
+    const won = Math.max(0, Number($("salary").value) || 0) * 10000;
+    return won / HOURS / 3600 * p;
+  };
+  const elapsedSec = () => base + (running ? (performance.now() - startedAt) / 1000 * speed : 0);
+  const fmt = n => "₩" + Math.floor(n).toLocaleString("ko-KR");
+  const clock = s => [s / 3600, s % 3600 / 60, s % 60].map(v => String(Math.floor(v)).padStart(2, "0")).join(":");
+
+  function draw() {
+    const t = elapsedSec(), cost = t * perSecond();
+    $("money").textContent = fmt(cost);
+    $("money").classList.toggle("idle", t === 0);
+    $("elapsed").textContent = clock(t) + (speed > 1 ? ` (×${speed} 배속)` : "");
+    $("perMin").textContent = fmt(perSecond() * 60);
+    $("eq").textContent = `치킨 ${Math.floor(cost / CHICKEN)}마리 · 커피 ${Math.floor(cost / COFFEE)}잔`;
+    $("bar").style.width = Math.min(100, (t % 3600) / 36) + "%";
+    document.title = t ? `${fmt(cost)} · 회의 돈 타이머` : "회의 돈 타이머";
+  }
+  function save() {
+    try { localStorage.setItem("meetingTimer", JSON.stringify({ people: $("people").value, salary: $("salary").value })); } catch (e) {}
+  }
+  $("toggle").addEventListener("click", () => {
+    if (running) { base = elapsedSec(); running = false; } else { startedAt = performance.now(); running = true; }
+    $("toggle").textContent = running ? "잠깐 멈춤" : (base ? "이어서" : "회의 시작");
+    $("state").textContent = running ? "돈 타는 중" : (base ? "멈춤" : "대기 중");
+    draw();
+  });
+  $("reset").addEventListener("click", () => { running = false; base = 0; $("toggle").textContent = "회의 시작"; $("state").textContent = "대기 중"; draw(); });
+  $("mini").addEventListener("click", () => document.body.classList.toggle("mini"));
+  $("money").addEventListener("dblclick", () => document.body.classList.remove("mini"));
+  ["people", "salary"].forEach(id => $(id).addEventListener("input", () => { save(); draw(); }));
+  (function loop() { draw(); requestAnimationFrame(loop); })();
+})();
+</script>
+</body>
+</html>
