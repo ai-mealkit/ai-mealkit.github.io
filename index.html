@@ -35,8 +35,9 @@ h1{font-size:27px;line-height:1.25;margin:0 0 4px;letter-spacing:-.6px}
 .app{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;align-items:center;background:var(--card);border-radius:16px;padding:12px;margin:0 0 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
 .screen{flex:none;position:relative;display:block;width:132px;height:286px;border-radius:14px;overflow:hidden;background:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .screen iframe{position:absolute;left:0;top:0;width:360px;height:780px;border:0;transform:scale(.3667);transform-origin:0 0;pointer-events:none}
-.num{position:absolute;left:8px;top:8px;z-index:2;min-width:30px;height:30px;padding:0 8px;border-radius:999px;background:var(--ink);color:#fff;font:800 15px/30px var(--font);text-align:center;box-shadow:0 0 0 2px #fff}
-.doc .num{position:static;flex:none;box-shadow:none;color:#fff;font-size:15px}
+.num{display:inline-block;background:var(--ink);color:#fff;border-radius:6px;padding:1px 7px;margin:0 6px 6px 0;font:800 13px/1.5 ui-monospace,Consolas,var(--font);letter-spacing:.5px}
+.doc .num{color:#fff;font-size:13px}
+.doc b{display:block}
 .find input::-webkit-search-cancel-button{display:none}
 .doc>div{flex:1;min-width:0}
 .screen .ph{position:absolute;inset:0;display:grid;place-items:center;color:#fff8;font-size:13px}
@@ -67,7 +68,7 @@ footer a{color:inherit}
   <h1>놀이터</h1>
   <p class="lead">영상에 나온 그거, 여기 다 있어요. 설치 없이 무료.</p>
   <div class="bar">
-    <label class="find"><span aria-hidden="true">🔍</span><input id="q" type="search" inputmode="search" placeholder="번호나 이름으로 찾기 (예: 3, 잉어)" aria-label="번호나 이름으로 찾기" autocomplete="off"><button type="button" id="qx" aria-label="지우기" hidden>×</button></label>
+    <label class="find"><span aria-hidden="true">🔍</span><input id="q" type="search" inputmode="search" placeholder="번호나 이름으로 찾기 (예: 003, 잉어)" aria-label="번호나 이름으로 찾기" autocomplete="off"><button type="button" id="qx" aria-label="지우기" hidden>×</button></label>
     <nav class="tabs" role="tablist" id="tabs" aria-label="종류"></nav>
   </div>
   <section id="panel" role="tabpanel"></section>
@@ -114,16 +115,17 @@ footer a{color:inherit}
       `<button role="tab" id="t-${t.id}" data-tab="${t.id}" aria-controls="panel">${t.label}${t.id === "popular" ? "" : `<small>${inTab(t.id).length}</small>`}</button>`).join("");
   }
 
-  const num = i => `<span class="num" aria-label="${i.id}번">${i.id}</span>`;
+  const no3 = n => String(n).padStart(3, "0");   // 001 · 002 …
+  const num = i => `<span class="num" aria-label="${i.id}번">${no3(i.id)}</span>`;
   function appCard(a, rank) {
     const url = "/" + a.slug + "/";
     const tag = (rank ? "인기 " + rank + "위 · " : "") + (a.no ? `${SERIES} #${a.no}` : (a.tag || ""));
-    return `<article class="app"><a class="screen" href="${url}" data-slug="${a.slug}" aria-label="${a.id}번 ${a.name} 열기">${num(a)}<span class="ph">불러오는 중…</span></a>` +
-      `<div>${tag ? `<span class="tag">${tag}</span>` : ""}<h3>${a.name}</h3><p>${a.line}</p><div class="btns">` +
+    return `<article class="app"><a class="screen" href="${url}" data-slug="${a.slug}" aria-label="${a.id}번 ${a.name} 열기"><span class="ph">불러오는 중…</span></a>` +
+      `<div>${num(a)}${tag ? `<span class="tag">${tag}</span>` : ""}<h3>${a.name}</h3><p>${a.line}</p><div class="btns">` +
       `<a class="go" href="${url}" data-slug="${a.slug}">바로 해 보기</a>` +
       `<button class="share" type="button" data-slug="${a.slug}" data-name="${a.name}">친구한테 보내기</button></div></div></article>`;
   }
-  const docRow = (d, rank) => `<a class="doc" href="/${d.slug}/" data-slug="${d.slug}">${num(d)}<div><b>${rank ? `<em class="rk">인기 ${rank}위</em>` : ""}${d.name}</b><span>${d.line}</span></div><i>열기 →</i></a>`;
+  const docRow = (d, rank) => `<a class="doc" href="/${d.slug}/" data-slug="${d.slug}"><div>${num(d)}<b>${rank ? `<em class="rk">인기 ${rank}위</em>` : ""}${d.name}</b><span>${d.line}</span></div><i>열기 →</i></a>`;
   const card = (i, rank) => i.tab === "apps" ? appCard(i, rank) : docRow(i, rank);
 
   function show(id, user) {
