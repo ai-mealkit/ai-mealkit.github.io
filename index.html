@@ -89,11 +89,11 @@ footer a{color:inherit}
   ];
   // 인기 = 구글 시트 「인기」 탭을 웹에 게시한 CSV — 페이지 이름만 많이 연 순서로(사람 수는 공개 안 함, 브라우저마다 하루 1번만 셈). 비워 두거나 못 읽으면 인기 탭은 안 보인다.
   const POP_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS68WJqxlHTbeVJ19CZiNRiwgh-e3xpwKwUXDc5Pt-BLTtbSkxhrp9Zn9fqLUStEW8py_DXp_UQtUQL/pub?gid=1695152522&single=true&output=csv";
-  const SERIES = "딸깍 앱";   // 앱 카드 꼬리표 「딸깍 앱 #N」 — N = 영상 꼬리표 번호(no)
+  const SERIES = "딸깍 앱";   // 카드 꼬리표 = 영상 시리즈 이름만(11-03 대표님 1-A) — 「딸깍 앱 #N」, N = 영상 꼬리표 번호(no). 시리즈가 아닌 것은 꼬리표 없이 번호만
   // 항목: id = 놀이터 번호(올린 순서, 한 번 붙이면 안 바꿈 — 영상 설명란 「놀이터 N번」). 새 것은 맨 위에 다음 번호로 한 줄. tab = 위 TABS 의 id
   const ITEMS = [
     { id: 6, tab: "prompts", slug: "photo", name: "폰 사진 한 장 → 광고 사진", line: "사진 올리고 붙여 넣을 문장 5개" },
-    { id: 5, tab: "apps", tag: "직장인 도구", slug: "timer", name: "회의 돈 타이머", line: "인원·연봉만 넣으면 이 회의에 1분마다 얼마가 나가는지." },
+    { id: 5, tab: "apps", slug: "timer", name: "회의 돈 타이머", line: "인원·연봉만 넣으면 이 회의에 1분마다 얼마가 나가는지." },
     { id: 4, tab: "prompts", slug: "reply", name: "거절 티 안 나는 직장 답장", line: "받은 카톡을 붙이면 답장 3개" },
     { id: 3, tab: "apps", no: 3, slug: "koi-pond", name: "손끝 잉어 연못", line: "손가락을 대면 잉어가 졸졸 따라와요. 톡 치면 먹이." },
     { id: 2, tab: "apps", no: 2, slug: "meeting-escape", name: "회의 탈출 버튼", line: "전화 걸 사람을 고르면 진짜처럼 전화가 와요(가짜 화면)." },
