@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f5f4f0">
+<title>AI 밀키트 앱 놀이터</title>
+<meta name="description" content="릴스에 나온 앱, 설치 없이 바로 써 보세요.">
+<meta property="og:title" content="AI 밀키트 앱 놀이터">
+<meta property="og:description" content="릴스에 나온 앱, 설치 없이 바로 써 보세요.">
+<style>
+/* 한 줄 = 앱 하나: 왼쪽은 진짜 앱이 돌아가는 작은 화면(누르면 전체 화면), 오른쪽은 이름·한 줄·버튼 */
+:root{--bg:#f5f4f0;--card:#fff;--ink:#1b1d21;--mute:#5f6570;--line:#e4e1da;--key:#e8590c;
+--font:system-ui,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 var(--font);-webkit-tap-highlight-color:transparent}
+main{max-width:640px;margin:0 auto;padding:max(26px,env(safe-area-inset-top)) 16px 56px}
+h1{font-size:27px;line-height:1.25;margin:0 0 6px;letter-spacing:-.6px}
+.lead{color:var(--mute);margin:0 0 24px;word-break:keep-all}
+h2{font-size:15px;color:var(--mute);font-weight:700;margin:30px 0 10px;letter-spacing:-.2px}
+.app{display:grid;grid-template-columns:132px 1fr;gap:16px;align-items:center;background:var(--card);border-radius:16px;padding:12px;margin:0 0 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.screen{position:relative;display:block;width:132px;height:286px;border-radius:14px;overflow:hidden;background:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.screen iframe{position:absolute;left:0;top:0;width:360px;height:780px;border:0;transform:scale(.3667);transform-origin:0 0;pointer-events:none}
+.screen .ph{position:absolute;inset:0;display:grid;place-items:center;color:#fff8;font-size:13px}
+.app>div{min-width:0;word-break:keep-all}
+.tag{display:inline-block;font-size:12px;font-weight:800;color:var(--key);margin:0 0 2px}
+.app h3{font-size:19px;line-height:1.3;margin:0 0 4px;letter-spacing:-.4px}
+.app p{margin:0 0 12px;color:var(--mute);font-size:15px}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.go,.share{border:0;border-radius:999px;font:700 14px var(--font);padding:8px 14px;cursor:pointer;text-decoration:none}
+.go{background:var(--key);color:#fff}
+.share{background:var(--bg);color:var(--ink)}
+.go:focus-visible,.share:focus-visible,.screen:focus-visible,.doc:focus-visible{outline:2px solid var(--key);outline-offset:2px}
+.doc{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px 16px;margin:0 0 10px;color:inherit;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.doc b{display:block;font-size:16px}
+.doc span{color:var(--mute);font-size:14px}
+.doc i{font-style:normal;color:var(--key);font-weight:800;white-space:nowrap}
+footer{margin-top:34px;text-align:center;color:#8a909b;font-size:14px}
+footer a{color:inherit}
+.toast{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);background:#1b1d21;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.on{opacity:1}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1>앱 놀이터</h1>
+  <p class="lead">릴스에 나온 앱, 여기서 바로 써 보세요. 설치 없이 무료예요.</p>
+
+  <h2>AI로 만든 앱</h2>
+  <div id="apps"></div>
+
+  <h2>릴스에서 받은 자료</h2>
+  <a class="doc" href="/reply/" data-slug="reply"><div><b>거절 티 안 나는 직장 답장</b><span>받은 카톡을 붙이면 답장 3개</span></div><i>열기 →</i></a>
+  <a class="doc" href="/photo/" data-slug="photo"><div><b>폰 사진 한 장 → 광고 사진</b><span>사진 올리고 붙여 넣을 문장 5개</span></div><i>열기 →</i></a>
+
+  <footer>만든 곳 · <a href="https://www.instagram.com/ai_mealkit/">인스타 @ai_mealkit</a> · <a href="https://www.youtube.com/@ai_mealkit">유튜브</a></footer>
+</main>
+<div class="toast" id="toast" role="status"></div>
+<script src="/count.js"></script>
+<script>
+(() => {
+  // 새 앱은 맨 위에 한 줄 추가(no = 릴스 꼬리표 「AI로 만든 앱 #N」과 같은 번호)
+  const APPS = [
+    { no: 3, slug: "koi-pond", name: "손끝 잉어 연못", line: "손가락을 대면 잉어가 졸졸 따라와요. 톡 치면 먹이." },
+    { no: 2, slug: "meeting-escape", name: "회의 탈출 버튼", line: "전화 걸 사람을 고르면 진짜처럼 전화가 와요(가짜 화면)." },
+    { no: 1, slug: "weekend-battery", name: "주말 배터리", line: "금요일 18시 100%, 월요일 아침 0%. 내 주말은 몇 % 남았지?" },
+    { no: 0, slug: "timer", name: "회의 돈 타이머", line: "인원·연봉만 넣으면 이 회의에 1분마다 얼마가 나가는지." },
+  ];
+  const box = document.getElementById("apps");
+  APPS.forEach(a => {
+    const url = "/" + a.slug + "/";
+    const el = document.createElement("section");
+    el.className = "app";
+    el.innerHTML =
+      `<a class="screen" href="${url}" data-slug="${a.slug}" aria-label="${a.name} 열기"><span class="ph">불러오는 중…</span></a>` +
+      `<div>${a.no ? `<span class="tag">AI로 만든 앱 #${a.no}</span>` : `<span class="tag">릴스 도구</span>`}` +
+      `<h3>${a.name}</h3><p>${a.line}</p><div class="btns">` +
+      `<a class="go" href="${url}" data-slug="${a.slug}">바로 해 보기</a>` +
+      `<button class="share" type="button" data-slug="${a.slug}" data-name="${a.name}">친구한테 보내기</button></div></div>`;
+    box.appendChild(el);
+  });
+
+  // 미리보기: 화면에 보일 때만 진짜 앱을 띄우고, 벗어나면 내린다(폰이 무거워지지 않게)
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    const s = e.target, f = s.querySelector("iframe");
+    if (e.isIntersecting && !f) {
+      const fr = document.createElement("iframe");
+      fr.src = "/" + s.dataset.slug + "/"; fr.title = ""; fr.tabIndex = -1; fr.setAttribute("aria-hidden", "true");
+      fr.onload = () => { const ph = s.querySelector(".ph"); if (ph) ph.remove(); };
+      s.appendChild(fr);
+    } else if (!e.isIntersecting && f) { f.remove(); if (!s.querySelector(".ph")) s.insertAdjacentHTML("afterbegin", '<span class="ph">…</span>'); }
+  }), { rootMargin: "120px" });
+  document.querySelectorAll(".screen").forEach(s => io.observe(s));
+
+  const count = (ev, slug) => window.mkCount && window.mkCount(ev, slug);
+  document.querySelectorAll("a[data-slug]").forEach(a => a.addEventListener("click", () => count("open", a.dataset.slug)));
+
+  const toast = msg => { const t = document.getElementById("toast"); t.textContent = msg; t.classList.add("on"); setTimeout(() => t.classList.remove("on"), 1600); };
+  document.querySelectorAll(".share").forEach(b => b.addEventListener("click", async () => {
+    const url = location.origin + "/" + b.dataset.slug + "/";
+    count("share", b.dataset.slug);
+    try {
+      if (navigator.share) { await navigator.share({ title: b.dataset.name, text: b.dataset.name + " — 설치 없이 바로 써 보기", url }); return; }
+      await navigator.clipboard.writeText(url); toast("주소를 복사했어요");
+    } catch (e) { if (e && e.name !== "AbortError") toast(url); }
+  }));
+})();
+</script>
+</body>
+</html>
