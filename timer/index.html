@@ -37,6 +37,9 @@ body.mini .app{width:auto;padding:10px 14px;gap:2px;border-radius:10px;box-shado
 body.mini .money{font-size:28px}
 body.mini .hide-mini{display:none}
 body.mini .sub{font-size:12px}
+body.mini .app{cursor:pointer}
+.show-mini{display:none;font-size:11px;color:var(--mute)}
+body.mini .show-mini{display:block}
 @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
 </style>
 </head>
@@ -51,6 +54,7 @@ body.mini .sub{font-size:12px}
     <span>경과 <b id="elapsed">00:00:00</b></span>
     <span class="hide-mini">1분마다 <b id="perMin">₩0</b></span>
   </div>
+  <div class="show-mini">누르면 원래 화면</div>
   <div class="bar hide-mini" aria-hidden="true"><i id="bar"></i></div>
   <div class="eq hide-mini" id="eq">치킨 0마리 · 커피 0잔</div>
   <div class="row hide-mini">
@@ -77,7 +81,6 @@ body.mini .sub{font-size:12px}
     if (s.people) $("people").value = s.people;
     if (s.salary) $("salary").value = s.salary;
   } catch (e) {}
-  if (q.get("mini") === "1") document.body.classList.add("mini");
 
   const perSecond = () => {
     const p = Math.max(1, Number($("people").value) || 1);
@@ -108,9 +111,18 @@ body.mini .sub{font-size:12px}
     draw();
   });
   $("reset").addEventListener("click", () => { running = false; base = 0; $("toggle").textContent = "회의 시작"; $("state").textContent = "대기 중"; draw(); });
-  $("mini").addEventListener("click", () => document.body.classList.toggle("mini"));
-  $("money").addEventListener("dblclick", () => document.body.classList.remove("mini"));
+  // 작게 ↔ 원래: 작게 버튼으로 줄이고, 작은 화면 아무 곳이나 누르면(또는 Enter) 원래 화면으로
+  const app = document.querySelector(".app");
+  function setMini(on) {
+    document.body.classList.toggle("mini", on);
+    if (on) { app.setAttribute("role", "button"); app.tabIndex = 0; app.setAttribute("aria-label", "원래 화면으로"); app.focus(); }
+    else { app.removeAttribute("role"); app.removeAttribute("tabindex"); app.removeAttribute("aria-label"); }
+  }
+  $("mini").addEventListener("click", e => { e.stopPropagation(); setMini(true); });
+  app.addEventListener("click", () => { if (document.body.classList.contains("mini")) setMini(false); });
+  app.addEventListener("keydown", e => { if (document.body.classList.contains("mini") && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); setMini(false); } });
   ["people", "salary"].forEach(id => $(id).addEventListener("input", () => { save(); draw(); }));
+  if (q.get("mini") === "1") setMini(true);
   (function loop() { draw(); requestAnimationFrame(loop); })();
 })();
 </script>
