@@ -26,16 +26,17 @@ h1{font-size:27px;line-height:1.25;margin:0 0 4px;letter-spacing:-.6px}
 .head{margin:2px 0 12px;word-break:keep-all}
 .head b{display:block;font-size:19px;letter-spacing:-.4px}
 .head span{color:var(--mute);font-size:14px}
-.app{display:grid;grid-template-columns:132px 1fr;gap:16px;align-items:center;background:var(--card);border-radius:16px;padding:12px;margin:0 0 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
-.screen{position:relative;display:block;width:132px;height:286px;border-radius:14px;overflow:hidden;background:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+/* 글자 크게(폰 글꼴 크기·인스타 안 브라우저) = 글 칸이 9em 보다 좁아지면 미리보기 밑으로 내려감 */
+.app{display:flex;flex-wrap:wrap;justify-content:center;gap:16px;align-items:center;background:var(--card);border-radius:16px;padding:12px;margin:0 0 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.screen{flex:none;position:relative;display:block;width:132px;height:286px;border-radius:14px;overflow:hidden;background:#111;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
 .screen iframe{position:absolute;left:0;top:0;width:360px;height:780px;border:0;transform:scale(.3667);transform-origin:0 0;pointer-events:none}
 .screen .ph{position:absolute;inset:0;display:grid;place-items:center;color:#fff8;font-size:13px}
-.app>div{min-width:0;word-break:keep-all}
+.app>div{flex:1 1 9em;min-width:0;word-break:keep-all}
 .tag{display:inline-block;font-size:12px;font-weight:800;color:var(--key);margin:0 0 2px}
 .app h3{font-size:19px;line-height:1.3;margin:0 0 4px;letter-spacing:-.4px}
 .app p{margin:0 0 12px;color:var(--mute);font-size:15px}
 .btns{display:flex;flex-wrap:wrap;gap:8px}
-.go,.share{border:0;border-radius:999px;font:700 14px var(--font);padding:8px 14px;cursor:pointer;text-decoration:none}
+.go,.share{border:0;border-radius:999px;font:700 14px var(--font);padding:8px 14px;cursor:pointer;text-decoration:none;white-space:nowrap}
 .go{background:var(--key);color:#fff}
 .share{background:var(--bg);color:var(--ink)}
 .doc{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px 16px;margin:0 0 10px;color:inherit;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.06);word-break:keep-all}
