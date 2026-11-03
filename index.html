@@ -42,6 +42,7 @@ h1{font-size:27px;line-height:1.25;margin:0 0 4px;letter-spacing:-.6px}
 .doc{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px 16px;margin:0 0 10px;color:inherit;text-decoration:none;box-shadow:0 1px 3px rgba(0,0,0,.06);word-break:keep-all}
 .doc b{display:block;font-size:16px}
 .doc span{color:var(--mute);font-size:14px}
+.doc .rk{font-style:normal;color:var(--key);margin-right:6px}
 .doc i{font-style:normal;color:var(--key);font-weight:800;white-space:nowrap}
 .go:focus-visible,.share:focus-visible,.screen:focus-visible,.doc:focus-visible,.tabs button:focus-visible{outline:2px solid var(--key);outline-offset:2px}
 footer{margin-top:34px;text-align:center;color:#8a909b;font-size:14px}
@@ -66,10 +67,13 @@ footer a{color:inherit}
   // ── 여기만 고치면 된다 ──────────────────────────────────────────────
   // 탭: 항목이 하나도 없는 탭은 안 보인다(준비 안 된 자료는 미리 약속하지 않음). 주소 끝 #apps·#prompts 로 그 탭이 바로 열린다.
   const TABS = [
+    { id: "popular", label: "인기", head: "요즘 많이 연 순서", sub: "놀이터 앱·자료를 사람들이 많이 연 순서대로 모았어요." },
     { id: "apps", label: "앱", head: "딸깍 앱", sub: "말 한마디로 딸깍 만든 앱. 눌러서 바로 써 보세요." },
     { id: "prompts", label: "프롬프트", head: "영상에서 본 그 문장", sub: "복사해서 AI 채팅창에 붙여 넣기만 하면 돼요." },
     { id: "skills", label: "스킬", head: "클로드 스킬", sub: "받아서 넣으면 클로드가 그 일을 알아서 해요." },
   ];
+  // 인기 = 구글 시트 「인기」 탭을 웹에 게시한 CSV — 페이지 이름만 많이 연 순서로(사람 수는 공개 안 함, 브라우저마다 하루 1번만 셈). 비워 두거나 못 읽으면 인기 탭은 안 보인다.
+  const POP_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS68WJqxlHTbeVJ19CZiNRiwgh-e3xpwKwUXDc5Pt-BLTtbSkxhrp9Zn9fqLUStEW8py_DXp_UQtUQL/pub?gid=1695152522&single=true&output=csv";
   const SERIES = "딸깍 앱";   // 앱 카드 꼬리표 「딸깍 앱 #N」 — N = 영상 꼬리표 번호
   // 항목: 새로 만든 것은 그 탭의 맨 위에 한 줄. tab = 위 TABS 의 id
   const ITEMS = [
@@ -84,29 +88,34 @@ footer a{color:inherit}
 
   const $ = id => document.getElementById(id);
   const count = (ev, p) => window.mkCount && window.mkCount(ev, p);
-  const tabs = TABS.filter(t => ITEMS.some(i => i.tab === t.id));
-  let io = null;
+  let pop = null;   // { slug: 사람 수 } — 인기 탭을 쓸 수 있을 때만
+  const inTab = id => id === "popular"
+    ? ITEMS.filter(i => pop[i.slug] > 0).sort((a, b) => pop[b.slug] - pop[a.slug])   // 같은 수면 원래 순서(새 것 먼저)
+    : ITEMS.filter(i => i.tab === id);
+  let tabs = [], io = null;
+  function drawTabs() {
+    tabs = TABS.filter(t => (t.id === "popular" ? pop !== null : true) && inTab(t.id).length);
+    $("tabs").innerHTML = tabs.map(t =>
+      `<button role="tab" id="t-${t.id}" data-tab="${t.id}" aria-controls="panel">${t.label}${t.id === "popular" ? "" : `<small>${inTab(t.id).length}</small>`}</button>`).join("");
+  }
 
-  $("tabs").innerHTML = tabs.map(t =>
-    `<button role="tab" id="t-${t.id}" data-tab="${t.id}" aria-controls="panel">${t.label}<small>${ITEMS.filter(i => i.tab === t.id).length}</small></button>`).join("");
-
-  function appCard(a) {
+  function appCard(a, rank) {
     const url = "/" + a.slug + "/";
-    const tag = a.no ? `${SERIES} #${a.no}` : (a.tag || "");
+    const tag = (rank ? rank + "위 · " : "") + (a.no ? `${SERIES} #${a.no}` : (a.tag || ""));
     return `<article class="app"><a class="screen" href="${url}" data-slug="${a.slug}" aria-label="${a.name} 열기"><span class="ph">불러오는 중…</span></a>` +
       `<div>${tag ? `<span class="tag">${tag}</span>` : ""}<h3>${a.name}</h3><p>${a.line}</p><div class="btns">` +
       `<a class="go" href="${url}" data-slug="${a.slug}">바로 해 보기</a>` +
       `<button class="share" type="button" data-slug="${a.slug}" data-name="${a.name}">친구한테 보내기</button></div></div></article>`;
   }
-  const docRow = d => `<a class="doc" href="/${d.slug}/" data-slug="${d.slug}"><div><b>${d.name}</b><span>${d.line}</span></div><i>열기 →</i></a>`;
+  const docRow = (d, rank) => `<a class="doc" href="/${d.slug}/" data-slug="${d.slug}"><div><b>${rank ? `<em class="rk">${rank}위</em>` : ""}${d.name}</b><span>${d.line}</span></div><i>열기 →</i></a>`;
 
   function show(id, user) {
     const t = tabs.find(x => x.id === id) || tabs[0];
     tabs.forEach(x => $("t-" + x.id).setAttribute("aria-selected", String(x.id === t.id)));
-    const list = ITEMS.filter(i => i.tab === t.id);
+    const list = inTab(t.id), rk = t.id === "popular";
     $("panel").setAttribute("aria-labelledby", "t-" + t.id);
     $("panel").innerHTML = `<div class="head"><b>${t.head}</b><span>${t.sub}</span></div>` +
-      list.map(i => (t.id === "apps" ? appCard(i) : docRow(i))).join("");
+      list.map((i, k) => (i.tab === "apps" ? appCard(i, rk && k + 1) : docRow(i, rk && k + 1))).join("");
     wire();
     if (user) { history.replaceState(null, "", "#" + t.id); count("tab", t.id); }
   }
@@ -143,7 +152,14 @@ footer a{color:inherit}
     const n = tabs[(i + (e.key === "ArrowRight" ? 1 : tabs.length - 1)) % tabs.length];
     show(n.id, true); $("t-" + n.id).focus();
   });
-  show(location.hash.slice(1), false);
+  // 인기 수는 1.5초 안에 오면 반영(첫 화면 = 인기 탭), 늦거나 실패하면 인기 탭 없이 그대로
+  const timeout = new Promise(r => setTimeout(r, 1500));
+  const load = POP_CSV ? fetch(POP_CSV, { cache: "no-store" }).then(r => r.ok ? r.text() : "").then(txt => {
+    const m = {}, rows = txt.trim().split(/\r?\n/).slice(1).map(l => l.split(",")[0].trim()).filter(Boolean);
+    rows.forEach((p, k) => { m[p] = rows.length - k; });   // 위에 있을수록 큰 점수(순서만 받음)
+    if (Object.keys(m).length) pop = m;
+  }).catch(() => {}) : Promise.resolve();
+  Promise.race([load, timeout]).then(() => { drawTabs(); show(location.hash.slice(1), false); });
 })();
 </script>
 </body>
