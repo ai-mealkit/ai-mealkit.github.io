@@ -83,6 +83,7 @@ footer a{color:inherit}
   const TABS = [
     { id: "all", label: "전체", head: "새로 올린 순서", sub: "영상 설명에 적힌 번호로 찾으면 돼요." },
     { id: "popular", label: "인기", head: "많이 연 순서", sub: "사람들이 많이 연 순서대로 모았어요." },
+    { id: "guides", label: "자료실", head: "영상 따라 하기 자료", sub: "영상에서 한 그대로 — 순서·실제 화면·복사 문장·이렇게 되면 성공까지." },
     { id: "apps", label: "앱", head: "딸깍 앱", sub: "말 한마디로 딸깍 만든 앱. 눌러서 바로 써 보세요." },
     { id: "prompts", label: "프롬프트", head: "영상에서 본 그 문장", sub: "복사해서 AI 채팅창에 붙여 넣기만 하면 돼요." },
     { id: "skills", label: "스킬", head: "클로드 스킬", sub: "받아서 넣으면 클로드가 그 일을 알아서 해요." },
@@ -92,6 +93,7 @@ footer a{color:inherit}
   const SERIES = "딸깍 앱";   // 카드 꼬리표 = 영상 시리즈 이름만(11-03 대표님 1-A) — 「딸깍 앱 #N」, N = 영상 꼬리표 번호(no). 시리즈가 아닌 것은 꼬리표 없이 번호만
   // 항목: id = 놀이터 번호(올린 순서, 한 번 붙이면 안 바꿈 — 영상 설명란 「놀이터 N번」). 새 것은 맨 위에 다음 번호로 한 줄. tab = 위 TABS 의 id
   const ITEMS = [
+    { id: 7, tab: "guides", slug: "work7", name: "AI에 맡겨 볼 업무 7가지", line: "무료 계정으로 직접 해 본 7가지 — 순서·화면·복사 문장 14개" },
     { id: 6, tab: "prompts", slug: "photo", name: "폰 사진 한 장 → 광고 사진", line: "사진 올리고 붙여 넣을 문장 5개" },
     { id: 5, tab: "apps", slug: "timer", name: "회의 돈 타이머", line: "인원·연봉만 넣으면 이 회의에 1분마다 얼마가 나가는지." },
     { id: 4, tab: "prompts", slug: "reply", name: "거절 티 안 나는 직장 답장", line: "받은 카톡을 붙이면 답장 3개" },
