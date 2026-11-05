@@ -3,6 +3,7 @@
 <meta name="description" content="챗GPT·제미나이·클로드 무료 계정으로 직접 해 본 업무 7가지. 단계, 실제 화면, 복사용 프롬프트, 이렇게 되면 성공, 막힐 때까지.">
 <style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f5f4f0;color:#1b1d21;font:16px/1.7 system-ui,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
 main{max-width:720px;margin:0 auto;padding:26px 18px 70px}a{color:#c2410c}
+.back{display:inline-flex;align-items:center;gap:4px;margin:0 0 14px;padding:7px 14px 7px 10px;border-radius:999px;background:#fff;color:#1b1d21;text-decoration:none;font-size:14px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .no{display:inline-block;background:#1b1d21;color:#fff;border-radius:6px;padding:1px 9px;font-size:13px;font-weight:700;letter-spacing:.5px}
 h1{font-size:27px;line-height:1.3;margin:10px 0 8px;letter-spacing:-.6px}.lead{color:#4b5260;margin:0 0 6px}.meta{color:#8a909b;font-size:14px;margin:0 0 22px}
 .box{background:#fff;border-radius:14px;padding:16px 18px;margin:0 0 18px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
@@ -22,6 +23,7 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px
 .src{font-size:13px;color:#4b5260}.src li{word-break:break-all}footer{margin-top:28px;color:#8a909b;font-size:14px;text-align:center}
 .top{position:fixed;right:14px;bottom:16px;background:#1b1d21;color:#fff;border-radius:999px;padding:8px 13px;font-size:13px;text-decoration:none;opacity:.85}
 </style></head><body><main>
+<a class="back" href="/" id="back">← 놀이터로</a><br>
 <span class="no">자료실 007</span>
 <h1>채팅만 쓰던 사람이 오늘 AI에 맡겨 볼 업무 7가지</h1>
 <p class="lead">영상에서 한 그대로예요. 어디를 누르는지, 붙여 넣을 문장, 이렇게 나오면 성공, 막힐 때 할 일까지 한 장에 모았어요.</p>
@@ -141,4 +143,4 @@ table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px
 <a class="top" href="#">맨 위로</a>
 <script>document.querySelectorAll('button[data-c]').forEach(b=>b.onclick=async()=>{const t=document.getElementById(b.dataset.c).innerText;
 try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}
-b.textContent='복사됨 ✓';b.classList.add('done');setTimeout(()=>{b.textContent='복사하기';b.classList.remove('done')},1600)})</script><script src="/count.js" defer></script></body></html>
+b.textContent='복사됨 ✓';b.classList.add('done');setTimeout(()=>{b.textContent='복사하기';b.classList.remove('done')},1600)})</script><script>document.getElementById("back").onclick=e=>{if(document.referrer&&new URL(document.referrer).host===location.host&&history.length>1){e.preventDefault();history.back()}}</script><script src="/count.js" defer></script></body></html>
