@@ -1,0 +1,132 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자료실 008 · 클로드 무료 계정에 캘린더·드라이브·지메일·카톡 연결하기 (MCP 커넥터)</title>
+<meta name="description" content="클로드 무료 계정으로 직접 해 본 MCP 커넥터 연결. 구글 캘린더·드라이브·지메일·카카오 PlayMCP 순서, 실제 화면, 복사용 문장, 이렇게 되면 성공, 막힐 때, 안전하게 쓰는 법.">
+<style>*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f5f4f0;color:#1b1d21;font:16px/1.7 system-ui,"Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",sans-serif}
+main{max-width:720px;margin:0 auto;padding:26px 18px 70px}a{color:#c2410c}
+.back{display:inline-flex;align-items:center;gap:4px;margin:0 0 14px;padding:7px 14px 7px 10px;border-radius:999px;background:#fff;color:#1b1d21;text-decoration:none;font-size:14px;font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.no{display:inline-block;background:#1b1d21;color:#fff;border-radius:6px;padding:1px 9px;font-size:13px;font-weight:700;letter-spacing:.5px}
+h1{font-size:27px;line-height:1.3;margin:10px 0 8px;letter-spacing:-.6px}.lead{color:#4b5260;margin:0 0 6px}.meta{color:#8a909b;font-size:14px;margin:0 0 22px}
+.box{background:#fff;border-radius:14px;padding:16px 18px;margin:0 0 18px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.toc a{display:flex;justify-content:space-between;gap:10px;padding:9px 2px;border-bottom:1px solid #eee;text-decoration:none;color:#1b1d21}.toc a:last-child{border:0}
+.tag{font-size:12px;font-weight:700;border-radius:999px;padding:1px 9px;white-space:nowrap;align-self:center}.free{background:#e6f4ea;color:#2e7d4f}.paid{background:#fdebdc;color:#c2410c}
+section.task{background:#fff;border-radius:16px;padding:18px 18px 8px;margin:0 0 22px;box-shadow:0 1px 3px rgba(0,0,0,.06);scroll-margin-top:12px}
+h2{font-size:21px;margin:0 0 4px;letter-spacing:-.4px}.who{color:#4b5260;font-size:15px;margin:0 0 12px}
+h3{font-size:16px;margin:16px 0 6px}ol,ul{margin:0 0 8px;padding-left:22px}li{margin:3px 0}
+figure{margin:10px 0 12px}figure img{width:100%;border-radius:10px;border:1px solid #e3e1da;display:block}figcaption{font-size:13px;color:#8a909b;margin-top:4px}
+.copy{background:#f3f1ec;border-radius:10px;padding:10px 12px 12px;margin:8px 0 10px}.copy .lab{font-size:13px;font-weight:700;color:#4b5260;margin-bottom:4px}
+pre{white-space:pre-wrap;word-break:keep-all;margin:0 0 8px;font:15px/1.6 inherit;font-family:inherit}
+button{border:0;border-radius:999px;background:#e8590c;color:#fff;font:700 14px inherit;font-family:inherit;padding:7px 16px;cursor:pointer}button.done{background:#2f9e44}
+.ok{background:#e6f4ea;border-left:4px solid #2f9e44;border-radius:8px;padding:9px 12px;margin:8px 0 10px}.ok b{color:#2e7d4f}
+.warn{background:#fff4e0;border-left:4px solid #e8a20c;border-radius:8px;padding:9px 12px;margin:8px 0 12px}.warn b{color:#a35c00}
+.faq details{border-bottom:1px solid #eee;padding:8px 0}.faq summary{font-weight:700;cursor:pointer}.faq p{margin:6px 0 2px;color:#30353e}
+table{width:100%;border-collapse:collapse;font-size:14px}th,td{border-bottom:1px solid #eee;padding:7px 6px;text-align:left;vertical-align:top}th{background:#f3f1ec}
+.src{font-size:13px;color:#4b5260}.src li{word-break:break-all}footer{margin-top:28px;color:#8a909b;font-size:14px;text-align:center}
+.top{position:fixed;right:14px;bottom:16px;background:#1b1d21;color:#fff;border-radius:999px;padding:8px 13px;font-size:13px;text-decoration:none;opacity:.85}
+</style></head><body><main>
+<a class="back" href="/" id="back">← 놀이터로</a><br>
+<span class="no">자료실 008</span>
+<h1>클로드 무료 계정에 내 캘린더·드라이브·지메일·카톡 연결하기</h1>
+<p class="lead">MCP(클로드에선 「커넥터」)로 AI를 채팅창 밖으로 꺼내는 법이에요. 영상에서 한 그대로 — 어디를 누르는지, 무엇을 허용하는지, 붙여 넣을 문장, 이렇게 되면 성공, 막힐 때까지 한 장에 모았어요.</p>
+<p class="meta">클로드 무료 계정으로 직접 해 봄 · 2026년 11월 5일 · 영상 속 일정·파일·메일은 모두 예시 데이터 · <a href="#" id="video">영상 보기</a></p>
+
+<div class="box"><b>쓰는 법</b><ol><li>아래 목록에서 연결해 보고 싶은 앱을 누르세요. 처음이면 <b>구글 캘린더 하나만</b> 추천해요.</li><li>「순서」대로 연결하고, 권한 고르는 화면에선 <b>필요한 것만</b> 체크하세요.</li><li>회색 상자의 문장을 「복사하기」 → 클로드 채팅창에 붙여 넣기 → 「이렇게 되면 성공」과 비교.</li></ol></div>
+
+<div class="box toc"><b>한눈에 보기</b>
+<a href="#menu">0 · 연결 메뉴 찾기 — 사용자 지정 → 커넥터<span class="tag free">무료</span></a>
+<a href="#cal">1 · 구글 캘린더 — 일주일 일정 + 빈 시간<span class="tag free">무료</span></a>
+<a href="#drive">2 · 구글 드라이브 — 견적서 두 개 비교<span class="tag free">무료</span></a>
+<a href="#gmail">3 · 지메일 — 회의록 보고 메일 초안(보내지 않음)<span class="tag free">무료</span></a>
+<a href="#kakao">4 · 카톡 — 카카오 PlayMCP로 나와의 채팅방에 보내기<span class="tag free">무료</span></a>
+<a href="#safe">안전하게 쓰는 법 · 끊는 법</a>
+<a href="#faq">자주 묻는 질문 · 챗GPT·제미나이는?</a>
+</div>
+
+<section class="task" id="menu"><h2>0 · 연결 메뉴 찾기</h2><p class="who">클로드 무료 계정 · 왼쪽 아래에 「Free」라고 보이면 무료 계정이에요</p>
+<h3>순서</h3><ol><li><a href="https://claude.ai" target="_blank" rel="noopener">claude.ai</a> 로그인</li><li>왼쪽 메뉴 <b>사용자 지정</b> → 위쪽 <b>커넥터</b> (예전엔 설정 안에 있었어요)</li><li>오른쪽 위 검색창에 앱 이름(예: Google Calendar)</li></ol>
+<figure><img src="img/list.jpg" alt="클로드 커넥터 목록과 검색창" loading="lazy"><figcaption>바로 붙일 수 있는 앱 목록 — 2026년 11월 5일 기준 1,000개가 넘어요</figcaption></figure>
+<div class="warn"><b>메뉴를 못 찾겠으면</b> · 그냥 하고 싶은 일을 물어보세요. 연결이 안 돼 있으면 클로드가 「Google Calendar · 연결」 카드를 먼저 띄워 줘요. 거기서 바로 <b>연결</b>을 눌러도 돼요.</div>
+<figure><img src="img/before.jpg" alt="연결 전 클로드가 캘린더를 볼 수 없다며 연결 카드를 띄운 화면" loading="lazy"><figcaption>연결 전: 「연결된 캘린더가 없어서 직접 확인할 수 없어요」 + 연결 카드</figcaption></figure>
+</section>
+
+<section class="task" id="cal"><h2>1 · 구글 캘린더</h2><p class="who">무료 · 처음 하나만 해 본다면 이것 · 일정 정리, 빈 시간 찾기</p>
+<h3>순서</h3><ol><li>커넥터 검색 「Google Calendar」 → 오른쪽 위 <b>Claude에 연결</b></li><li>구글 로그인 창 → 계정 고르기 → <b>계속</b></li><li><b>권한 고르기</b>: 정리만 시킬 거면 위의 두 개(일정 보기 · 확인 및 다운로드)만 체크 → <b>계속</b></li><li>클로드 화면에 「연결됨」이 뜨면 끝 (1분 정도)</li></ol>
+<figure><img src="img/cal_detail.jpg" alt="구글 캘린더 커넥터 상세 화면과 Claude에 연결 버튼" loading="lazy"><figcaption>아래 「도구」 목록 = 클로드가 캘린더에서 할 수 있는 일</figcaption></figure>
+<figure><img src="img/cal_scope.jpg" alt="구글 캘린더 권한 고르기 화면에서 보기 권한 두 개만 체크" loading="lazy"><figcaption>맨 아래 「수정·공유·영구 삭제」는 비워 뒀어요 — 보는 권한만으로 충분했어요</figcaption></figure>
+<div class="copy"><div class="lab">붙여 넣을 문장</div><pre id="c11">오늘부터 일주일 내 일정 정리하고, 비어 있는 시간 찾아 줘.</pre><button data-c="c11">복사하기</button></div>
+<div class="copy"><div class="lab">응용 · 근무 시간 바꾸기</div><pre id="c12">다음 주 평일 오전 10시부터 오후 7시 사이에서, 2시간 이상 비는 시간만 골라 줘.</pre><button data-c="c12">복사하기</button></div>
+<figure><img src="img/cal_after.jpg" alt="연결 후 일정 표와 빈 시간 표" loading="lazy"><figcaption>연결 후: 일정 10건 표 + 평일 9~18시 빈 시간 표</figcaption></figure>
+<div class="ok"><b>이렇게 되면 성공</b> · 답 위에 「Google Calendar 사용함」이 뜨고, 날짜별 일정 표와 빈 시간 표가 나와요. 영상에선 예시 일정 10건을 하나도 안 틀리고 정리했어요.</div>
+<div class="warn"><b>막히면</b> · 「볼 수 없어요」라고 하면 연결이 안 된 거예요 — 사용자 지정 → 커넥터 → 내 항목에서 「연결됨」인지 보세요. 연결됐는데도 안 쓰면 문장에 「구글 캘린더에서」를 넣으세요.</div>
+</section>
+
+<section class="task" id="drive"><h2>2 · 구글 드라이브</h2><p class="who">무료 · 파일 이름을 몰라도 「무슨 파일인지」만 말하면 찾아와요</p>
+<h3>순서</h3><ol><li>커넥터 검색 「Google Drive」 → <b>Claude에 연결</b> → 계정 → <b>계속</b></li><li>권한: <b>Google Drive 파일 보기 및 다운로드</b> 하나만 체크 → <b>계속</b></li></ol>
+<figure><img src="img/drive_scope.jpg" alt="구글 드라이브 권한 고르기 화면" loading="lazy"><figcaption>보기·다운로드 하나만 체크</figcaption></figure>
+<div class="copy"><div class="lab">붙여 넣을 문장 · (파일 종류)만 바꾸세요</div><pre id="c21">드라이브에서 포장재 견적서 두 개 찾아서, 달라진 금액만 표로 정리해 줘.</pre><button data-c="c21">복사하기</button></div>
+<div class="copy"><div class="lab">응용 · 회의록 할 일만</div><pre id="c22">드라이브에서 가장 최근 회의록을 찾아서, 사람별 할 일과 마감일만 표로 정리해 줘.</pre><button data-c="c22">복사하기</button></div>
+<figure><img src="img/drive_result.jpg" alt="견적서 두 개를 비교한 표" loading="lazy"><figcaption>품목별 증감 + 총액 +93,500원 + 납기·유효기간 변화까지</figcaption></figure>
+<div class="ok"><b>이렇게 되면 성공</b> · 「Google Drive 사용함」과 함께 찾은 파일 이름이 아래에 붙고, 표가 나와요. 영상에선 시키지 않은 납기(5→7영업일)·유효기간(30→15일) 변화까지 찾아 줬어요.</div>
+<div class="warn"><b>막히면</b> · 파일을 못 찾으면 종류와 시기를 더 말해 주세요(예: 「11월 견적서」). 회사 파일이라면 밖의 AI에 연결해도 되는지 회사 규칙부터 확인하세요.</div>
+</section>
+
+<section class="task" id="gmail"><h2>3 · 지메일</h2><p class="who">무료 · 메일 초안까지 · <b>보내기는 내가</b></p>
+<h3>순서</h3><ol><li>커넥터 검색 「Gmail」 → <b>Claude에 연결</b> → 계정 → <b>계속</b></li><li>권한: <b>이메일 메시지 및 설정 보기</b> + <b>임시보관 메일 관리 및 이메일 전송</b> 체크 → <b>계속</b></li></ol>
+<figure><img src="img/gmail_scope.jpg" alt="지메일 권한 고르기 화면" loading="lazy"><figcaption>초안 쓰기와 「전송」이 한 칸에 묶여 있어요 — 그래서 문장에 「보내지는 말고」를 꼭</figcaption></figure>
+<div class="copy"><div class="lab">붙여 넣을 문장 · 드라이브도 연결돼 있을 때</div><pre id="c31">드라이브의 겨울 신상 회의록을 보고, 거래처에 단가 재협상 메일 초안을 임시보관함에 써 줘. 보내지는 말고.</pre><button data-c="c31">복사하기</button></div>
+<div class="copy"><div class="lab">응용 · 받은 메일 정리</div><pre id="c32">오늘 받은 메일 중에 답장이 필요한 것만 골라서 세 줄씩 요약해 줘. 답장 초안은 임시보관함에만 넣고, 보내지는 말고.</pre><button data-c="c32">복사하기</button></div>
+<figure><img src="img/gmail_draft.jpg" alt="지메일 임시보관함에 생긴 초안" loading="lazy"><figcaption>지메일 임시보관함에 진짜로 생긴 초안 — 이름·연락처는 빈칸</figcaption></figure>
+<div class="ok"><b>이렇게 되면 성공</b> · 「발송은 하지 않았습니다」라는 답과 함께, 지메일 <b>임시보관함</b>에 초안이 한 통 생겨요. 읽고 고쳐서 내가 보내기를 누르면 돼요.</div>
+<div class="warn"><b>막히면</b> · 보내기 직전에 허용 창이 뜨면, 의도한 게 아니면 누르지 마세요. 모르는 정보(내 이름·연락처)는 빈칸으로 남겨 두니 직접 채우세요.</div>
+</section>
+
+<section class="task" id="kakao"><h2>4 · 카톡 — 카카오 PlayMCP</h2><p class="who">클로드 쪽 무료 · 목록에 없어서 「커스텀 커넥터」로 직접 붙여요 · 카카오 계정 필요</p>
+<h3>순서</h3><ol><li><a href="https://playmcp.kakao.com" target="_blank" rel="noopener">playmcp.kakao.com</a> → 카카오 계정으로 로그인</li><li>원하는 도구를 <b>도구함</b>에 담기 (영상: 「카카오톡 나챗방」 = 나와의 채팅방으로 보내기)</li><li>도구함 오른쪽 <b>도구함 URL → 복사하기</b></li><li>클로드 커넥터 화면 오른쪽 위 <b>추가 → 커스텀 커넥터 추가</b> → 이름(아무거나) + 주소 붙여 넣기 → <b>계속</b></li><li>다음 화면은 전부 「감지됨」 — 손대지 말고 <b>추가</b> → <b>연결</b></li><li>카카오 동의 화면(계정 확인 · 도구함 목록 확인 · 도구 호출) → <b>모두 동의 후 계속하기</b></li></ol>
+<div class="copy"><div class="lab">붙여 넣을 주소 · 커스텀 커넥터 「MCP 서버 URL」 칸</div><pre id="c41">https://playmcp.kakao.com/mcp</pre><button data-c="c41">복사하기</button></div>
+<figure><img src="img/playmcp_box.jpg" alt="PlayMCP 도구함과 도구함 URL" loading="lazy"><figcaption>도구함에 담긴 「카카오톡 나챗방」과 오른쪽 도구함 URL</figcaption></figure>
+<figure><img src="img/custom_step2.jpg" alt="커스텀 커넥터 추가 2단계 화면" loading="lazy"><figcaption>2단계는 어려운 말이 많지만 전부 「감지됨」 — 그대로 추가</figcaption></figure>
+<div class="copy"><div class="lab">붙여 넣을 문장 · 캘린더·드라이브도 연결돼 있을 때</div><pre id="c42">내일 일정이랑, 드라이브 회의록에 있는 할 일을 세 줄로 정리해서 카톡 나와의 채팅방으로 보내 줘.</pre><button data-c="c42">복사하기</button></div>
+<div class="copy"><div class="lab">응용 · 매일 아침용</div><pre id="c43">오늘 일정이랑 오늘 마감인 할 일만 세 줄로 정리해서 카톡 나와의 채팅방으로 보내 줘.</pre><button data-c="c43">복사하기</button></div>
+<figure><img src="img/kakao_sent.jpg" alt="클로드가 카톡 나와의 채팅방으로 세 줄을 보냈다는 답" loading="lazy"><figcaption>보내기 직전 「한 번 허용」을 한 번 묻고, 질문부터 약 20초</figcaption></figure>
+<div class="ok"><b>이렇게 되면 성공</b> · 답 위에 「카카오 PlayMCP 사용함」, 답에 「카톡 나와의 채팅방으로 세 줄 보냈어요」가 나오고, 내 카톡 <b>나와의 채팅방</b>에 그 세 줄이 와 있어요.</div>
+<div class="warn"><b>막히면</b> · 커스텀 커넥터는 클로드 공식 안내상 무료 계정 1개까지예요 — 무료라면 꼭 필요한 하나(카톡)에 쓰세요. 도구함 구성을 바꿨는데 도구가 안 보이면 커넥터를 껐다 켜 보세요. PlayMCP 자체 요금은 공식 안내에 없어요(2026년 11월 5일 확인).</div>
+</section>
+
+<section class="task" id="safe"><h2>안전하게 쓰는 법 · 끊는 법</h2><p class="who">연결 = 권한이에요. 은행 앱까지 다 연결할 필요는 없어요</p>
+<ol><li><b>믿을 수 있는 곳만</b> · 공식 목록에 있는 앱, 카카오처럼 회사가 직접 만든 곳만. 커스텀 커넥터 화면에도 「신뢰할 수 있는 개발자의 커넥터만 사용하세요」라고 적혀 있어요.</li>
+<li><b>필요한 권한만</b> · 권한 고르는 화면에서 보기만 할 거면 보기만. 영상에선 캘린더·드라이브를 보는 권한만으로 다 했어요.</li>
+<li><b>되돌리기 어려운 일은 초안까지</b> · 보내기·지우기는 「보내지는 말고」처럼 막아 두고, 허용 창이 뜨면 「한 번 허용」으로 하나씩 보고 누르세요.</li></ol>
+<h3>끊는 법</h3><ol><li>클로드 <b>사용자 지정 → 커넥터 → 내 항목</b> → 앱 누르기 → <b>연결 해제</b></li><li>카카오는 PlayMCP 쪽 「연결된 서비스」에서도 클로드 권한을 지우면 깔끔해요</li><li>구글 쪽은 구글 계정 → 보안 → 연결된 앱에서도 지울 수 있어요</li></ol>
+<figure><img src="img/disconnect.jpg" alt="커넥터 내 항목 목록" loading="lazy"><figcaption>내 항목에서 앱별로 연결·해제</figcaption></figure>
+</section>
+
+<section class="box faq" id="faq"><b>자주 묻는 질문</b>
+<details><summary>정말 무료로 되나요?</summary><p>영상의 네 가지 모두 2026년 11월 5일 클로드 무료 계정으로 직접 했어요. 무료는 하루 사용량에 한도가 있어 길게 많이 시키면 쉬었다 하라고 나와요(녹화 중엔 한 번도 안 걸렸어요). 커스텀 커넥터를 여러 개 쓰고 싶으면 Pro(월 20달러부터, 연간 결제 시 월 17달러)를 생각해 보세요.</p></details>
+<details><summary>MCP가 뭐예요? 커넥터랑 달라요?</summary><p>AI가 내 앱을 직접 열어 볼 수 있게 해 주는 연결 규칙이에요. 앤트로픽이 2024년 11월에 공개했고, 지금은 오픈AI·구글도 써요. 클로드에선 「커넥터」, 챗GPT에선 「플러그인」이라고 불러요 — 이름만 달라요.</p></details>
+<details><summary>챗GPT·제미나이에서도 돼요?</summary><p>챗GPT 무료 계정에도 왼쪽 「플러그인」 메뉴가 있고, 구글 캘린더·지메일·드라이브·노션이 보이며 「플러그인 설치」 버튼이 떠요(11월 5일 화면 확인). 카톡처럼 목록에 없는 걸 직접 붙이는 건 찾아본 자료상 무료에선 안 된다고 나와요(직접 확인은 못 함). 제미나이는 구글 자기 앱끼리는 잘 붙지만, 다른 앱을 직접 붙이는 기능은 지금 미국·영어로만 열려 있어요.</p></details>
+<details><summary>회사 계정에서도 돼요?</summary><p>기술적으로는 돼요. 하지만 회사 메일·파일을 밖의 AI에 연결해도 되는지는 회사마다 규칙이 달라요. 꼭 먼저 물어보세요. 영상은 예시 계정·예시 파일로만 했어요.</p></details>
+<details><summary>권한을 잘못 줬어요.</summary><p>사용자 지정 → 커넥터 → 내 항목에서 연결 해제하고 다시 연결하면, 권한 고르는 화면이 다시 나와요.</p></details>
+<details><summary>카톡이 안 와요.</summary><p>클로드 답에 「카카오 PlayMCP 사용함」이 있는지 보세요. 없으면 커넥터가 꺼져 있거나 연결이 풀린 거예요. 보내는 곳은 PlayMCP에 로그인한 카카오 계정의 「나와의 채팅방」이에요.</p></details>
+</section>
+
+<section class="box"><b>무료/유료 정리</b> <span class="meta">(2026년 11월 5일 확인 · 바뀔 수 있어요)</span>
+<table><tr><th>무엇</th><th>무료 계정</th></tr>
+<tr><td>클로드 공식 목록 커넥터(캘린더·드라이브·지메일 등)</td><td>됨 — 영상에서 직접</td></tr>
+<tr><td>클로드 커스텀 커넥터(PlayMCP 카톡)</td><td>됨 — 공식 안내상 1개까지</td></tr>
+<tr><td>챗GPT 플러그인(목록 앱)</td><td>설치 버튼 보임(연결은 안 해 봄)</td></tr>
+<tr><td>챗GPT 직접 추가(MCP 주소)</td><td>자료상 안 됨(확인 못 함)</td></tr>
+<tr><td>제미나이 다른 앱 직접 추가</td><td>미국·영어만</td></tr></table>
+<ul class="src"><li>클로드 커넥터: <a href="https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities" target="_blank" rel="noopener">support.claude.com — Use connectors</a></li>
+<li>클로드 커스텀 커넥터: <a href="https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp" target="_blank" rel="noopener">support.claude.com — Custom connectors</a></li>
+<li>클로드 요금: <a href="https://claude.com/pricing" target="_blank" rel="noopener">claude.com/pricing</a></li>
+<li>MCP 발표(2024-11): <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener">anthropic.com/news/model-context-protocol</a></li>
+<li>MCP 기부·1만 개+(2025-12): <a href="https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation" target="_blank" rel="noopener">Linux Foundation 발표</a></li>
+<li>카카오 PlayMCP: <a href="https://www.kakaocorp.com/page/detail/11674" target="_blank" rel="noopener">베타 오픈(2025-08)</a> · <a href="https://www.kakaocorp.com/page/detail/11817?lang=ENG" target="_blank" rel="noopener">도구함 기능(2025-11)</a></li>
+<li>제미나이 앱 연결: <a href="https://support.google.com/gemini/answer/17209137" target="_blank" rel="noopener">support.google.com/gemini/answer/17209137</a></li></ul>
+</section>
+
+<p style="text-align:center"><a href="#" id="video2">▶ 영상으로 보기</a> · <a href="/">놀이터 다른 자료</a></p>
+<footer>@ai_mealkit · 자료실 008</footer></main>
+<a class="top" href="#">맨 위로</a>
+<script>document.querySelectorAll('button[data-c]').forEach(b=>b.onclick=async()=>{const t=document.getElementById(b.dataset.c).innerText;
+try{await navigator.clipboard.writeText(t)}catch(e){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove()}
+b.textContent='복사됨 ✓';b.classList.add('done');setTimeout(()=>{b.textContent='복사하기';b.classList.remove('done')},1600)})</script><script>document.getElementById("back").onclick=e=>{if(document.referrer&&new URL(document.referrer).host===location.host&&history.length>1){e.preventDefault();history.back()}}</script><script src="/count.js" defer></script></body></html>
